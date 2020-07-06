@@ -73,13 +73,23 @@
   delegate_to: "{{ kvm_install_host }}"
   when: not vm_teardown|bool
 
-- name: add {{ vm_name }} to ansible inventory inventory
-  lineinfile:
-    path: "{{ inventory_file }}"
-    regexp: "^{{ vm_name }}"
-    line: "{{ vm_name }}   ansible_host={{ vm_ip }} ansible_user={{ admin_user }}"
-    insertafter: '^\[{{ inventory_group }}\]'
-    state: present
+#- name: 
+#  lineinfile:
+#    path: "{{ inventory_file }}"
+#    regexp: "^{{ vm_name }}"
+#    line: "{{ vm_name }}   ansible_host={{ vm_ip }} ansible_user={{ admin_user }}"
+#    insertafter: '^\[{{ inventory_group }}\]'
+#    state: present
+#  register: vm_inventory_status
+#  when: not vm_teardown|bool and (update_inventory and vm_ip is defined)
+
+- name: "add {{ vm_name }} to ansible  inventory"
+  yedit:
+    src: "{{ inventory_file }}"
+    key: "all.children.{{ vm_name }}.hosts.{{ vm_name }}"
+    value:
+      ansible_host: "{{ vm_ip }}"
+      ansible_user: "{{ admin_user }}"
   register: vm_inventory_status
   when: not vm_teardown|bool and (update_inventory and vm_ip is defined)
 

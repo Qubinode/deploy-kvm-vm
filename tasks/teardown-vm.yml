@@ -57,3 +57,9 @@
     state: absent
   with_items: "{{ vm_disks_all.files }}"
   when: vm_disks_all.matched != 0
+
+- name: "Remove {{ vm_name }} from ansible inventory"
+  yedit:
+    src: "{{ inventory_file }}"
+    state: absent
+    key: "all.children.{{ vm_name }}.hosts.{{ vm_name }}"
