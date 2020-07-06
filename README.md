@@ -6,6 +6,7 @@ The following role will deploy a Red Hat Enterprise Linux 7.x KVM.
 Requirements
 ------------
 * kvm packages are installed
+* [yedit role](https://github.com/kwoodson/ansible-role-yedit) is installed 
 
 Role Variables
 --------------
@@ -62,6 +63,8 @@ Example Playbook
 ```
 - hosts: localhost
   tags: provision
+  roles:
+  - kwoodson.yedit
   vars:
     update_inventory: true
     inventory_file: /inventory/instances/localhost
