@@ -24,7 +24,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install ansible-lint==${{ matrix.lint-version }} ansible==${{ matrix.ansible-version }}
-        pip isntall yamllint
+        pip install yamllint
     - name: Lint playbook
       run: |
         git clone https://github.com/Qubinode/qubinode-installer.git
