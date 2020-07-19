@@ -55,7 +55,13 @@ users:
     - {{ vm_public_key }}
     groups: wheel,adm,systemd-journal
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
-
+  - name: fedora
+      ssh_pwauth: True
+      ssh_authorized_keys:
+      - {{ vm_public_key }}
+      groups: wheel,adm,systemd-journal
+      sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    
 manage_resolv_conf: true
 
 resolv_conf:

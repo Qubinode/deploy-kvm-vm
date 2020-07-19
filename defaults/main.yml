@@ -24,7 +24,8 @@ vm_libvirt_net: default
 os_variant: rhel7
 inventory_file: ""
 inventory_group: ""
-#default RHEL user and password
+
+# default RHEL user and password
 admin_user: admin
 admin_user_password: ""
 kvm_vm_root_pwd: ""
@@ -36,7 +37,7 @@ vm_ipaddress: ""
 vm_mask: ""
 vm_nic: "eth0"
 
-#RHEL Subscription Info
+# RHEL Subscription Info
 rhsm_username: ""
 rhsm_password: ""
 rhsm_org: ""
@@ -71,7 +72,7 @@ vm_local_hostname: "{{ vm_name }}.{{ vm_domain }}"
 vm_hostname: "{{ vm_local_hostname }}"
 vm_virtinstall_net_opts: "network={{ vm_libvirt_net }}"
 update_inventory: false
-search_domains: 
+search_domains:
   - "{{ vm_domain }}"
 # Storage Options
 disk_opt: "cluster_size=128K"
@@ -81,4 +82,3 @@ os_qcow_template: "{{ kvm_vm_pool_dir }}/{{ cloud_init_vm_image }}"
 extra_disk_name: "{{ kvm_vm_pool_dir }}/{{ vm_name }}"
 disk_sequence: "bcdefghijklmnopqrstuvwxyz"
 vm_resolv_conf: "{{ vm_data_dir }}/{{ vm_name }}/resolv.conf"
-

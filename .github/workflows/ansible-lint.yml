@@ -1,3 +1,4 @@
+---
 name: Ansible Lint
 
 on: [push]
@@ -23,10 +24,23 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install ansible-lint==${{ matrix.lint-version }} ansible==${{ matrix.ansible-version }}
+        pip isntall yamllint
     - name: Lint playbook
       run: |
         git clone https://github.com/Qubinode/qubinode-installer.git
         cd qubinode-installer
-        ansible-galaxy install git+https://github.com/Qubinode/ocp4_kvm_deployer.git,dev --force
+        ansible-galaxy install git+https://github.com/Qubinode/deploy-kvm-vm.git,dev --force
         ansible-lint -x 206,204 playbooks/idm_vm_deployment.yml
+    - name: yamllint test
+      run: |
+        if [ ! -d /home/runner/.ansible/roles/deploy-kvm-vm ];
+        then
+          mkdir -p /home/runner/.ansible/roles
+          cd  /home/runner/.ansible/roles
+          git clone https://github.com/Qubinode/deploy-kvm-vm.git
+          cd deploy-kvm-vm
+          git checkout python-build
+        fi
+        cd /home/runner/.ansible/roles/deploy-kvm-vm
+        yamllint .
 
