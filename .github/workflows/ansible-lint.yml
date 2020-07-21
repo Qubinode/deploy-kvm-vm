@@ -27,6 +27,7 @@ jobs:
         pip install yamllint
     - name: Lint playbook
       run: |
+        set -x
         git clone https://github.com/Qubinode/qubinode-installer.git
         cd qubinode-installer
         export ANSIBLE_CONFIG="/home/runner/work/qubinode-installer/ansible.cfg"
