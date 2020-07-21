@@ -4,7 +4,7 @@
 ##########################
 cloud_init_vm_image: "rhel-server-7.6-x86_64-kvm.qcow2"
 kvm_install_host: localhost
-vm_name: ""
+vm_name: "demo-vm"
 vm_domain: lab.example
 
 # Set to true to delete the VM
