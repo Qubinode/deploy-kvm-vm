@@ -32,9 +32,9 @@ kvm_vm_root_pwd: ""
 
 # to provide static ip info set static_ip to true along and the relevant details
 static_ip: False
-vm_gateway: ""
-vm_ipaddress: ""
-vm_mask: ""
+vm_gateway: "192.168.1.1"
+vm_ipaddress: "192.168.1.2"
+vm_mask: "255.255.255.0"
 vm_nic: "eth0"
 
 # RHEL Subscription Info
