@@ -28,6 +28,8 @@ jobs:
     - name: Lint playbook
       run: |
         set -x
+        export $ANSIBLE_CONFIG
+        echo  $ANSIBLE_CONFIG || exit 1
         git clone https://github.com/Qubinode/qubinode-installer.git
         cd qubinode-installer
         ansible-galaxy install git+https://github.com/Qubinode/deploy-kvm-vm.git,python-build --force
