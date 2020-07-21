@@ -29,7 +29,7 @@ jobs:
       run: |
         git clone https://github.com/Qubinode/qubinode-installer.git
         cd qubinode-installer
-        export ANSIBLE_CONFIG="${HOME}/qubinode-installer/ansible.cfg"
+        export ANSIBLE_CONFIG="/home/runner/work/qubinode-installer/ansible.cfg"
         ansible-galaxy install git+https://github.com/Qubinode/deploy-kvm-vm.git,python-build --force
         ansible-lint -x 206,204 playbooks/idm_vm_deployment.yml
         ansible-lint -x 206,204 playbooks/idm_server.yml
