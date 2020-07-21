@@ -29,8 +29,10 @@ jobs:
       run: |
         git clone https://github.com/Qubinode/qubinode-installer.git
         cd qubinode-installer
-        ansible-galaxy install git+https://github.com/Qubinode/deploy-kvm-vm.git,dev --force
+        ansible-galaxy install git+https://github.com/Qubinode/deploy-kvm-vm.git,python-build --force
         ansible-lint -x 206,204 playbooks/idm_vm_deployment.yml
+        ansible-lint -x 206,204 playbooks/idm_server.yml
+        ansible-lint -x 206,204 playbooks/idm_server_cleanup.yml
     - name: yamllint test
       run: |
         if [ ! -d /home/runner/.ansible/roles/deploy-kvm-vm ];
