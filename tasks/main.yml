@@ -18,32 +18,6 @@
 - name: Deploy the VM
   when: not vm_teardown|bool
   become: yes
-<<<<<<< HEAD
-  delegate_to: "{{ kvm_install_host }}"
-  when: not vm_teardown|bool
-
-#- name: 
-#  lineinfile:
-#    path: "{{ inventory_file }}"
-#    regexp: "^{{ vm_name }}"
-#    line: "{{ vm_name }}   ansible_host={{ vm_ip }} ansible_user={{ admin_user }}"
-#    insertafter: '^\[{{ inventory_group }}\]'
-#    state: present
-#  register: vm_inventory_status
-#  when: not vm_teardown|bool and (update_inventory and vm_ip is defined)
-
-- name: "add {{ vm_name }} to ansible  inventory"
-  yedit:
-    src: "{{ inventory_file }}"
-    key: "all.children.{{ vm_name }}.hosts.{{ vm_name }}"
-    value:
-      ansible_host: "{{ vm_ip }}"
-      ansible_user: "{{ admin_user }}"
-  register: vm_inventory_status
-  when: not vm_teardown|bool and (update_inventory and vm_ip is defined)
-
-- name: refresh local static inventory
-=======
   block:
     - name: INCLUDE TASKS from build_vm_config.yml to build the VM deployment config
       import_tasks: build_vm_config.yml
@@ -58,7 +32,6 @@
       delegate_to: "{{ kvm_install_host }}"
     
 - name: Refresh inventory to ensure new instances exist in inventory
->>>>>>> refactoring
   meta: refresh_inventory
     
 - name: run post configuration
