@@ -37,7 +37,6 @@
   with_items:
     - getvmip
     - attach-libvirt-disk
-  delegate_to: "{{ kvm_install_host }}"
   tags: build_vm
 
 - name: BUILD_VM_CONFIG Create VM data dir to store vm information
@@ -46,13 +45,11 @@
     path: "{{ vm_data_dir }}/{{ vm_name }}"
     force: yes
   become: yes
-  delegate_to: "{{ kvm_install_host }}"
   tags: build_vm
 
 - name: BUILD_VM_CONFIG setting vm_ip if user provided ip address
   set_fact:
-    vm_ip: "{{ vm_ipaddress }}"
-  when: vm_ipaddress is defined and vm_ipaddress | length != 0
+    vm_ip: "{{ vm_ipaddress if vm_ipaddress is defined and vm_ipaddress | length != 0 else '' }}"
   tags: build_vm
 
 - name: BUILD_VM_CONFIG generate random mac address
@@ -60,7 +57,6 @@
     vm_mac: "{{ '52:54:00' | random_mac }}"
   when: vm_name not in all_instances.list_vms and vm_mac == ""
   tags: build_vm
-
 
 - name: BUILD_VM_CONFIG Check if qcow OS image template exist
   stat:
@@ -73,9 +69,14 @@
     msg: |
          The qcow os template {{ os_qcow_template }} does not exist.
          Please verify the variable os_qcow_template is set to the correct path
-         or copy {{ cloud_init_vm_image }} to {{ os_qcow_template }}.
+         or copy {{ vm_qcow_image }} to {{ os_qcow_template }}.
   when: cloud_init_image_exist.stat.exists == False
   tags: build_vm
+
+- name: BUILD_VM_CONFIG set convert_dhcp_to_static var
+  set_fact:
+    convert_dhcp_to_static: yes
+  when: not vm_cidr|bool and vm_ip != '' and vm_gateway != ''
 
 - name: BUILD_VM_CONFIG Generate cloud-init static network config
   template:
@@ -83,7 +84,7 @@
     dest: "{{ cloud_init_network_config }}"
     mode: 0777
   register: user_data_cloud_init
-  when: convert_dhcp_to_static|bool
+  when: static_net|bool
   tags: build_vm
 
 - name: BUILD_VM_CONFIG Generate cloud-init user data
@@ -100,15 +101,6 @@
     dest: "{{ cloud_init_meta_data }}"
     mode: 0777
   register: meta_data_cloud_init
-  tags: build_vm
-
-- name: BUILD_VM_CONFIG show qcow image
-  debug:
-    msg: 
-      - "cloud_init_vm_image: {{ cloud_init_vm_image }}"
-      - "os_disk: {{ os_disk }}"
-      - "vm_root_disk_size: {{ vm_root_disk_size }}"
-      - "os_qcow_template: {{ os_qcow_template }}"
   tags: build_vm
 
 - name: BUILD_VM_CONFIG check for existing cloud init iso
@@ -128,11 +120,6 @@
   when: user_data_cloud_init.changed or cloud_init_iso.stat.exists == False
   tags: build_vm
 
-- name: BUILD_VM_CONFIG generate {{ vm_name }} ifcfg interface template
-  template:
-    src: ifcfg.j2
-    dest: "{{ vm_ifcfg }}"
-
 - name: BUILD_VM_CONFIG generate virt-install command arguments
   template:
     src: virt-install-cmd.j2
@@ -140,3 +127,16 @@
     mode: 0755
   when: vm_name not in all_instances.list_vms
   tags: build_vm
+
+- name: BUILD_VM_CONFIG show qcow image
+  debug:
+    verbosity: 2
+    msg: 
+      - "vm_qcow_image: {{ vm_qcow_image }}"
+      - "os_disk: {{ os_disk }}"
+      - "vm_root_disk_size: {{ vm_root_disk_size }}"
+      - "os_qcow_template: {{ os_qcow_template }}"
+      - "vm_gateway: {{ vm_gateway }}"
+      - "vm_netmask: {{ vm_netmask }}"
+      - "vm_ipaddress: {{ vm_ipaddress }}"
+      - "convert_dhcp_to_static: {{ convert_dhcp_to_static }}"

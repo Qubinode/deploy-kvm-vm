@@ -22,11 +22,11 @@
     /usr/local/bin/getvmip -a| awk -F'/' '/{{ vm_name }}/ {print $2}'
   register: netmask_prefix
   changed_when: False
-  when: vm_mask_prefix is not defined
+  when: vm_cidr is not defined
 
-- name: SET-DHCP-TO-STATIC setting vm_mask_prefix variable to {{ vm_name }} dhcp provided netmask
+- name: SET-DHCP-TO-STATIC setting vm_cidr variable to {{ vm_name }} dhcp provided netmask
   set_fact:
-    vm_mask_prefix: "{{ netmask_prefix.stdout }}"
+    vm_cidr: "{{ netmask_prefix.stdout }}"
   when: netmask_prefix is defined and netmask_prefix is not skipped
 
 - name: SET-DHCP-TO-STATIC discover {{ vm_name }} gateway when using DHCP
@@ -45,7 +45,6 @@
 - name: SET-DHCP-TO-STATIC Get MAC address
   shell: >
      virsh --connect qemu:///system dumpxml {{ vm_name }} | awk -F\' '/mac address/ {print $2}'
-  delegate_to: "{{ kvm_install_host }}"
   register: vm_mac_result
   changed_when: false
   when: vm_name in all_instances.list_vms and vm_mac is not defined
