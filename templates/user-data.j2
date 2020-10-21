@@ -48,9 +48,11 @@ rh_subscription:
 
 
 # Default Packages
-#packages:
-#  - qemu-guest-agent
-#  - wget
+{% if 'rhel' not in os_release %}
+packages:
+  - qemu-guest-agent
+  - wget
+{% endif %}
 #{% if 'rhel' in os_release %}
 #  - yum-utils
 #{% endif %}
