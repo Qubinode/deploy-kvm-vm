@@ -36,6 +36,7 @@ sudo virt-sysprep -a  {{ os_disk }} \
     --hostname {{ vm_name }}.localdomain \
     --root-password password:${PASSWD} \
     --run-command "useradd -s /bin/bash -m -d /home/{{ admin_user }} {{ admin_user }}" \
+    --run-command "usermod -s /bin/bash  --append --groups wheel {{ admin_user }}"
     --ssh-inject {{ admin_user }}:file:{{ vm_public_key }} \
     --upload /tmp/ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 \
     --append-line "/etc/hosts:" \
@@ -43,8 +44,9 @@ sudo virt-sysprep -a  {{ os_disk }} \
     --append-line "/etc/hosts:{{ vm_gateway }}   gate.localdomain gate" \
     --selinux-relabel \
     --firstboot-command 'localectl set-locale LANG=en_US.utf-8' \
-    --firstboot-command "usermod –aG wheel {{ admin_user }}"  \
+
     --firstboot-command "restorecon -R -v /root/.ssh /home/{{ admin_user }}/.ssh"
     
 sudo virt-install --connect qemu:///system --import --name {{ vm_name }} --ram {{ vm_memory }} --vcpus {{vm_cpu}} --disk {{ os_disk }},format=qcow2,bus=virtio  --network network={{ vm_libvirt_net }},mac={{ vm_mac }}  --os-type Linux --os-variant {{ os_release }} --virt-type kvm --noautoconsole
 
+#    --firstboot-command "usermod -s /bin/bash  --append --groups wheel {{ admin_user }}"  \
