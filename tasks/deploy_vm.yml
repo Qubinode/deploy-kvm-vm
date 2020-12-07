@@ -114,6 +114,7 @@
   delay: 10
   register: dhcp_vm_ip
   changed_when: False
+  when:  use_cloud_init | bool
 
 ## adding host to in memory inventory
 ## two entries will be added, one is for user provided ip
@@ -126,4 +127,4 @@
 - name: add {{ vm_name }} dhcp issues ip address to in-memory inventory
   add_host:
     name: "{{ dhcp_vm_ip.stdout }}"
-  when: dhcp_vm_ip.stdout != ''
+  when: dhcp_vm_ip.stdout != '' and not use_cloud_init | bool

@@ -35,7 +35,6 @@ sudo virt-sysprep -a  {{ os_qcow_template }} \
 sudo virt-sysprep -a  {{ os_qcow_template }} \
     --hostname {{ vm_name }}.localdomain \
     --root-password password:${PASSWD} \
-    --ssh-inject root:file:${SSH_ROOT_PUBKEY} \
     --run-command "useradd -s /bin/bash -m -d /home/{{ admin_user }} {{ admin_user }}" \
     --ssh-inject {{ admin_user }}:file:{{ vm_public_key }} \
     --upload /tmp/ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 \
