@@ -36,6 +36,7 @@ sudo virt-sysprep -a  {{ os_disk }} \
     --hostname {{ vm_name }}.localdomain \
     --root-password password:${PASSWD} \
     --run-command "useradd -s /bin/bash -m -d /home/{{ admin_user }} {{ admin_user }}" \
+    --run-command "usermod –aG wheel {{ admin_user }}" \
     --ssh-inject {{ admin_user }}:file:{{ vm_public_key }} \
     --upload /tmp/ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 \
     --append-line "/etc/hosts:" \
