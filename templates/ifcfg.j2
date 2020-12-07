@@ -9,7 +9,7 @@ PEERDNS=yes
 NM_CONTROLLED=yes
 IPADDR={{ vm_ip }}
 GATEWAY={{ vm_gateway }}
-PREFIX={{ vm_cidr }}
+PREFIX="{{ vm_prefix }}"
 {% else  %}
 BOOTPROTO=dhcp
 PEERDNS=yes
