@@ -24,7 +24,7 @@
   block:
     - name: Copy operating system disk for {{ vm_name }}
       when: not os_disk_created.stat.exists
-      command: "cp {{ os_qcow_template }}  {{ os_disk }}.tmp"
+      command: "cp {{ os_qcow_template }}  {{ os_disk }}"
       args:
         creates: "{{ os_disk }}"
       register: create_os_disk
@@ -42,9 +42,13 @@
 
     - name: DEPLOY_VM grow {{ vm_name }} operating system
       command: >
-        sudo virt-resize -v -x --expand /dev/sda1 "{{ os_qcow_template }}.tmp" "{{ os_disk }}"
+        sudo virt-resize -v -x --expand /dev/sda1 "{{ os_disk }}" "{{ os_disk }}.tmp"
       register: resize_create_os_disk
       changed_when: '"Resize operation completed with no errors" in resize_create_os_disk.stdout'
+
+    - name: update qcow image
+      command: >
+          sudo mv "{{ os_disk }}.tmp" "{{ os_disk }}"
 
     - name: DEPLOY_VM Grow rhel root filesystem
       command: /usr/local/bin/qubi-virt-customize -a {{ os_disk }} --run-command 'xfs_growfs /'
