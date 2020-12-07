@@ -43,6 +43,8 @@
       command: >
         sudo virt-resize -v -x --expand /dev/sda1 "{{ os_disk }}" "{{ os_disk }}.tmp"
       register: resize_create_os_disk
+      environment: 
+        LIBGUESTFS_BACKEND: direct
       changed_when: '"Resize operation completed with no errors" in resize_create_os_disk.stdout'
 
     - name: update qcow image
