@@ -1,0 +1,50 @@
+#!/bin/bash
+
+ UUID=`uuidgen`
+
+PASSWD="{{ admin_user_password }}"
+cat > /tmp/ifcfg-eth0 << EOF
+TYPE="Ethernet"
+PROXY_METHOD="none"
+BROWSER_ONLY="no"
+BOOTPROTO="none"
+DEFROUTE="yes"
+IPV4_FAILURE_FATAL="no"
+IPV6INIT="yes"
+IPV6_AUTOCONF="yes"
+IPV6_DEFROUTE="yes"
+IPV6_FAILURE_FATAL="no"
+IPV6_ADDR_GEN_MODE="stable-privacy"
+NAME="eth0"
+UUID="${UUID}"
+DEVICE="eth0"
+ONBOOT="yes"
+IPADDR="{{ vm_ipaddress }}"
+PREFIX="{{ vm_netmask }}"
+GATEWAY="{{ vm_gateway }}"
+DNS1="{{ dns_sysprep }}"
+#DNS2="${DNS2}"
+#DNS3="${DNS3}"
+IPV6_PRIVACY="no"
+ZONE=public
+EOF
+
+sudo virt-sysprep -a  {{ os_qcow_template }} \
+        --enable user-account
+
+sudo virt-sysprep -a  {{ os_qcow_template }} \
+    --hostname {{ vm_name }}.localdomain \
+    --root-password password:${PASSWD} \
+    --ssh-inject root:file:${SSH_ROOT_PUBKEY} \
+    --run-command "useradd -s /bin/bash -m -d /home/{{ admin_user }} {{ admin_user }}" \
+    --ssh-inject {{ admin_user }}:file:{{ vm_public_key }} \
+    --upload /tmp/ifcfg-eth0:/etc/sysconfig/network-scripts/ifcfg-eth0 \
+    --append-line "/etc/hosts:" \
+    --append-line "/etc/hosts:{{ vm_ipaddress }} {{ vm_name }}.localdomain {{ vm_name }}" \
+    --append-line "/etc/hosts:{{ vm_gateway }}   gate.localdomain gate" \
+    --selinux-relabel \
+    --firstboot-command 'localectl set-locale LANG=en_US.utf-8' \
+    --firstboot-command "restorecon -R -v /root/.ssh /home/{{ admin_user }}/.ssh"
+    
+sudo virt-install --connect qemu:///system --import --name {{ vm_name }} --ram {{ vm_memory }} --vcpus {{vm_cpu}} --disk {{ os_disk }},format=qcow2,bus=virtio  --network network={{ vm_libvirt_net }},mac={{ vm_mac }}  --os-type Linux --os-variant {{ os_release }} --virt-type kvm --noautoconsole
+
