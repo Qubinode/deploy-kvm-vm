@@ -1,6 +1,7 @@
 #!/bin/bash
+set -xe 
 
- UUID=`uuidgen`
+UUID=`uuidgen`
 
 PASSWD="{{ admin_user_password }}"
 cat > /tmp/ifcfg-eth0 << EOF
@@ -28,10 +29,10 @@ IPV6_PRIVACY="no"
 ZONE=public
 EOF
 
-sudo virt-sysprep -a  {{ os_qcow_template }} \
+sudo virt-sysprep -a  {{ os_disk }} \
         --enable user-account
 
-sudo virt-sysprep -a  {{ os_qcow_template }} \
+sudo virt-sysprep -a  {{ os_disk }} \
     --hostname {{ vm_name }}.localdomain \
     --root-password password:${PASSWD} \
     --run-command "useradd -s /bin/bash -m -d /home/{{ admin_user }} {{ admin_user }}" \
