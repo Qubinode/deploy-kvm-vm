@@ -122,9 +122,11 @@
 - name: add {{ vm_name }} user provided ip address to in-memory inventory
   add_host:
     name: "{{ dhcp_vm_ip.stdout }}"
+  ignore_errors: yes
   when: vm_ipaddress != ''  and not use_cloud_init | bool
 
 - name: add {{ vm_name }} dhcp issues ip address to in-memory inventory
   add_host:
     name: "{{ dhcp_vm_ip.stdout }}"
+  ignore_errors: yes
   when: dhcp_vm_ip.stdout != '' and not use_cloud_init | bool
