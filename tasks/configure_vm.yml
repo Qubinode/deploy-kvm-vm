@@ -2,14 +2,15 @@
 - name: CONFIGURE_VM set vm_ip var to ip dhcp provided ip address
   set_fact:
     vm_ip: "{{ dhcp_vm_ip.stdout }}"
+  when:  use_cloud_init | bool
 
 - name: CONFIGURE_VM ensure the var vm_ip is defined
   fail:
     msg: "Could not find the ip address for the VM {{ vm_name }}."
-  when: vm_ip is not defined or vm_ip | length == 0
+  when: vm_ip is not defined or vm_ip | length == 0 and use_cloud_init | bool
 
 - name: convert {{ vm_name }} DHCP network info to static
-  when: convert_dhcp_to_static|bool
+  when: convert_dhcp_to_static|bool  and use_cloud_init | bool
   block:
   - name: CONFIGURE_VM configure {{ vm_name }} to use dhcp provided ip address as static ip config
     import_tasks: build_network_config.yml
@@ -40,6 +41,7 @@
       timeout: 120
       msg: "{{ vm_name }} not reachable on {{ vm_ip }}"
     register: ping_result
+  when: use_cloud_init | bool
 
 - name: CONFIGURE_VM add {{ vm_name }} to ansible inventory inventory
   lineinfile:
