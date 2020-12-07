@@ -7,6 +7,14 @@
   changed_when: no
   when: update_inventory|bool and vm_ip is defined
 
+- name: "Wait 300 seconds for port 22 to become open on {{ vm_name }} "
+  wait_for:
+    port: 22
+    host: '{{ vm_ip }}'
+    search_regex: OpenSSH
+    delay: 10
+  connection: local
+
 - name: POST_CONFIG update {{ vm_name }} /etc/resolv.conf
   when: ping_result is not failed and static_net|bool and vm_ip != ''
   template:
@@ -19,20 +27,21 @@
     name: root
     update_password: always
     password: "{{ kvm_vm_root_pwd | password_hash('sha512') }}"
-  when: ping_result is not failed and vm_ip != ''
+  when: ping_result is not failed and vm_ip != '' and  use_cloud_init | bool
   delegate_to: "{{ vm_ip }}"
 
-- name: POST_CONFIG ensure cloud-init is uninstalled
+- name: POST_CONFIG ensure cloud-init is uninstalled 
   yum:
     name: cloud-init
     state: absent
-  when: ping_result is not failed and vm_ip != ''
+  when: ping_result is not failed and vm_ip != '' and  use_cloud_init | bool
   delegate_to: "{{ vm_ip }}"
 
 - name: POST_CONFIG Check if cd-rom is attached
   shell: >
     virsh domblklist "{{ vm_name }}" | awk '/{{ cidata_iso_name }}/ {print $1}'
   register: cdrom_device
+  when: ping_result is not failed and vm_ip != '' and  use_cloud_init | bool
   ignore_errors: yes
   changed_when: false
   become: yes
@@ -40,7 +49,7 @@
 - name: POST_CONFIG Eject CD-Rom
   shell: >
     virsh change-media {{ vm_name }} {{ cdrom_device.stdout.split()[0] }} --eject
-  when: cdrom_device.stdout.split()[0] != ""
+  when: cdrom_device.stdout.split()[0] != "" and  use_cloud_init | bool
 
 - name: POST_CONFIG display vm information
   debug:
