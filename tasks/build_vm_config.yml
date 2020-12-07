@@ -107,18 +107,17 @@
   stat:
     path: "{{ cloud_init_iso_image }}"
   register: cloud_init_iso
-  when: use_cloud_init | bool
   tags: build_vm
 
 - name: BUILD_VM_CONFIG set cloud-init config files
   set_fact:
     cloud_init_configs: "{{ cloud_init_user_data }} {{ cloud_init_meta_data }} {{ cloud_init_network_config }}"
-  when: convert_dhcp_to_static|bool and use_cloud_init | bool
+  when: convert_dhcp_to_static|bool
   tags: build_vm
 
 - name: BUILD_VM_CONFIG Create iso image for cloud init
   shell: "genisoimage -input-charset utf-8 -output {{ cloud_init_iso_image }} -volid cidata -joliet -r {{ cloud_init_configs }}"
-  when: user_data_cloud_init.changed or cloud_init_iso.stat.exists == False and use_cloud_init | bool
+  when: user_data_cloud_init.changed or cloud_init_iso.stat.exists == False
   tags: build_vm
 
 - name: BUILD_VM_CONFIG generate virt-install command arguments for cloud-init deployments
