@@ -23,7 +23,7 @@
   when: vm_name not in all_instances.list_vms and expand_os_disk|bool
   block:
     - name: DEPLOY_VM Create operating system disk for {{ vm_name }}
-      command: "qemu-img create -f qcow2 preallocation=metadata {{ os_disk }}.tmp {{ vm_root_disk_size }}"
+      command: "sudo qemu-img create -f qcow2 -o preallocation=metadata {{ os_disk }}.tmp {{ vm_root_disk_size }}"
       args:
         creates: "{{ os_disk }}"
       register: create_os_disk
@@ -38,7 +38,7 @@
       register: create_os_disk
       environment: 
         LIBGUESTFS_BACKEND: direct
-        
+
     - name: DEPLOY_VM grow {{ vm_name }} operating system
       command: >
         sudo virt-resize -v -x --expand /dev/sda1 "{{ os_disk }}" "{{ os_disk }}.tmp"
