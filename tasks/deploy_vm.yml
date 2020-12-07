@@ -22,12 +22,23 @@
 - name: DEPLOY_VM {{ vm_name }} disk image
   when: vm_name not in all_instances.list_vms and expand_os_disk|bool
   block:
-    - name: DEPLOY_VM Create operating system disk for {{ vm_name }}
+    - name: Copy operating system disk for {{ vm_name }}
       when: not os_disk_created.stat.exists
-      command: "qemu-img create -f qcow2 preallocation=full {{ os_disk }} {{ vm_root_disk_size }}"
+      command: "cp {{ kvm_vm_pool_dir }}/{{ os_qcow_template }}  {{ os_disk }}"
       args:
         creates: "{{ os_disk }}"
       register: create_os_disk
+      environment: 
+        LIBGUESTFS_BACKEND: direct
+
+    - name: DEPLOY_VM Create operating system disk for {{ vm_name }}
+      when: not os_disk_created.stat.exists
+      command: "qemu-img create -f qcow2 preallocation=metadata {{ os_disk }} {{ vm_root_disk_size }}"
+      args:
+        creates: "{{ os_disk }}"
+      register: create_os_disk
+      environment: 
+        LIBGUESTFS_BACKEND: direct
 
     - name: DEPLOY_VM grow {{ vm_name }} operating system
       command: >

@@ -6,6 +6,14 @@
 ## this file must be downloaded to Libvirt pool directory
 ## the default is /var/lib/libvirt/images
 ## EXAMPLE: rhel-server-7.6-x86_64-kvm.qcow2
+
+###########################################
+## REQUIRED INPUT
+##
+## The qcow image you would like to deploy
+## this file must be downloaded to Libvirt pool directory
+## the default is /var/lib/libvirt/images
+## EXAMPLE: rhel-server-7.6-x86_64-kvm.qcow2
 vm_qcow_image: ""
 
 ## Libvirt OS Release
@@ -141,3 +149,7 @@ cloud_init_iso_image: "{{ vm_data_dir }}/{{ vm_name }}/{{ cidata_iso_name }}"
 qcow_rhel_release: "{{ rhel_release | default('8') }}"
 ip_and_mask: "{{ vm_ipaddress }}/{{ vm_netmask }}"
 vm_cidr: "{{ ip_and_mask | ipaddr('prefix') }}"
+use_cloud_init: false
+
+# virt-sysprep options
+dns_sysprep: 8.8.8.8
