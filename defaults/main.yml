@@ -153,3 +153,4 @@ use_cloud_init: false
 
 # virt-sysprep options
 dns_sysprep: 8.8.8.8
+vm_prefix: 24
