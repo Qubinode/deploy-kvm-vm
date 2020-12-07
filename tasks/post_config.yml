@@ -12,7 +12,7 @@
     port: 22
     host: '{{ vm_ip }}'
     search_regex: OpenSSH
-    delay: 10
+    delay: 30
   connection: local
 
 - name: POST_CONFIG update {{ vm_name }} /etc/resolv.conf
