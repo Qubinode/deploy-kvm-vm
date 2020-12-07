@@ -49,6 +49,7 @@
 - name: POST_CONFIG Eject CD-Rom
   shell: >
     virsh change-media {{ vm_name }} {{ cdrom_device.stdout.split()[0] }} --eject
+  ignore_errors: yes
   when: cdrom_device.stdout.split()[0] != "" and  use_cloud_init | bool
 
 - name: POST_CONFIG display vm information
