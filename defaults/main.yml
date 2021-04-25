@@ -20,6 +20,9 @@ os_release: ""
 admin_user: ""
 admin_user_password: ""
 
+## Pass host CPU on to guest
+enabled_nested: no
+
 ## Password to set for the root user
 kvm_vm_root_pwd: ""
 
