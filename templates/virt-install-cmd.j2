@@ -5,7 +5,7 @@ virt-install --connect qemu:///system \
              --name {{ vm_name }} \
              --ram {{ vm_memory }} \
              --vcpus {{vm_cpu}} \
-             --disk {{ os_disk }},format=qcow2,bus=virtio \
+             --disk {{ os_disk }},format=qcow2,bus=virtio,size={{ vm_root_disk_size }} \
              --disk {{ cloud_init_iso_image }},device=cdrom \
              --network {{ vm_virtinstall_net_opts }},mac={{ vm_mac }} \
              --os-type Linux \

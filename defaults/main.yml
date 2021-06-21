@@ -6,7 +6,7 @@
 ## this file must be downloaded to Libvirt pool directory
 ## the default is /var/lib/libvirt/images
 ## EXAMPLE: rhel-server-7.6-x86_64-kvm.qcow2
-vm_qcow_image: ""
+vm_qcow_image: "rhel-8.3-x86_64-kvm.qcow2"
 
 ## Libvirt OS Release
 ## Tested:
@@ -14,14 +14,15 @@ vm_qcow_image: ""
 ##  - fedora31
 ##  - windows: win2k12r2
 ## to see complete list: osinfo-query os or osinfo-query os | awk '/rhel[7-8]/ {print $1}'
-os_release: ""
+## Get the lastest RHEL: osinfo-query os --fields=short-id | grep rhel[0-9].[0-9]| sort -n | tail -n 1
+os_release: "rhel8.3"
 
 ## The default RHEL user and password
 admin_user: ""
 admin_user_password: ""
 
 ## Pass host CPU on to guest
-enabled_nested: no
+enabled_nested: yes
 
 ## Password to set for the root user
 kvm_vm_root_pwd: ""
@@ -41,7 +42,7 @@ rhsm_org: ""
 
 ## Specify the major release number for RHEL
 ## Tested: 7 and 8
-rhel_release: ""
+rhel_release: "8"
 
 ##############################
 ## Defaults - change if needed
@@ -55,7 +56,7 @@ vm_memory: 1024
 ## disk size in gigabytes
 vm_root_disk_size: 10G
 
-## set this to yes if you change vm_root_disk_size is larger that 10G
+## set this to yes if vm_root_disk_size is larger than 10G
 expand_os_disk: no
 
 ## Your local domain
@@ -72,7 +73,7 @@ extra_storage:
 vm_nic: "eth0"
 
 ## When this var is set to true and the host gets it's ip address from
-## dhcp. It was take that IP address and configure the host to use static
+## dhcp. It will take that IP address and configure the host to use it as a static
 ## ip address assignment. It's recommended that you create a DHCP reservation
 ## for this host to ensure the DHCP lease does not expire and get consume by 
 ## another host on the network.
@@ -112,7 +113,8 @@ nameservers: "{{ dns_servers }}"
 
 # If you have a static ansible inventory this role
 # can populate with the newly created VM
-update_inventory: yes
+# Set update_inventory to yes and populate the other two
+update_inventory: no
 inventory_file: ""
 inventory_group: ""
 
@@ -126,9 +128,10 @@ required_packages:
 
 vm_local_hostname: "{{ vm_name }}.{{ vm_domain }}"
 vm_hostname: "{{ vm_local_hostname }}"
-# get list of os variants
-# $ osinfo-query os
+
+# This is the same as os_release and will be merge in a future release
 os_variant: "{{ os_release }}"
+
 vm_ifcfg: "{{ vm_data_dir }}/{{ vm_name }}/ifcfg"
 vm_virtinstall_script: "{{ vm_data_dir }}/{{ vm_name }}/virtinstall.sh"
 vm_ifcfg_file: "{{ vm_data_dir }}/{{ vm_name }}/ifcfg-{{ vm_nic.stdout }}"

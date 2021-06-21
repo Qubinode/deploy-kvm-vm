@@ -1,39 +1,55 @@
 ---
 # tasks file for deploy-kvm-vm
+- name: MAIN Check if qcow OS image template exist
+  stat:
+    path: "{{ os_qcow_template }}"
+    get_checksum: no
+    get_attributes: no
+  register: cloud_init_image_exist
+  tags: [deploy_vm]
 
-- name: Ensure required packages are installed
+- name: MAIN fail if {{ os_qcow_template }} does not exist
+  fail:
+    msg: |
+         The variable vm_qcow_image is either not defined or not copied to
+         the directory {{ kvm_vm_pool_dir }}/. Please verify and try again.
+  when: cloud_init_image_exist.stat.exists == False or vm_qcow_image|length == 0
+  tags: [deploy_vm]
+
+- name: MAIN Ensure required packages are installed
+  tags: kvm_vm_packages
   become: yes
   package:
     name: "{{ required_packages }}"
     state: present
 
-- name: convert disk size to bytes
+- name: MAIN Convert disk size to bytes
+  tags: kvm_vm_setup
   vars:
     new_size: "{{ vm_root_disk_size }} GB"
     wanted_size: "{{ new_size|human_to_bytes }}"
   set_fact:
     expand_os_disk: "{{ true if wanted_size|int > '1073741824'|int else false }}"
-
-- name: Get a list of all instances
+    
+- name: MAIN Get a list of all instances
+  tags: [kvm_vm_setup, always]
   virt:
     command: list_vms
   register: all_instances
-  become: yes
-  tags: always
 
-- name: check if networking should be static or dhcp
+- name: MAIN check if networking should be static or dhcp
+  tags: kvm_vm_setup
   set_fact:
     static_net: yes
   when: convert_dhcp_to_static|bool or vm_ipaddress != ""
 
-- name: run tasks to teardown the VM
+- name: MAIN Run tasks to teardown the VM
   import_tasks: teardown-vm.yml
   become: yes
   when: vm_teardown|bool
 
-- name: Deploy the VM
+- name: MAIN Deploy the VM
   when: not vm_teardown|bool
-  become: yes
   block:
     - name: INCLUDE TASKS from build_vm_config.yml to build the VM deployment config
       import_tasks: build_vm_config.yml
@@ -44,6 +60,6 @@
     - name: INCLUDE TASKS from configure_vm.yml to configure the vm
       import_tasks: configure_vm.yml
 
-- name: run post configuration
+- name: MAIN Run post configuration
   when: not vm_teardown|bool
   include_tasks: post_config.yml

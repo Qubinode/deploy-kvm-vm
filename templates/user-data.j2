@@ -67,8 +67,7 @@ users:
     ssh_pwauth: True
     passwd: {{ admin_user_password | password_hash('sha512') }}
     ssh_authorized_keys:
-      - "{{ lookup('file', vm_public_key) }}"
-
+      - "{{ sshkey.stdout }}"
 
 # Change password (Reference Only)
 ssh_pwauth: True
