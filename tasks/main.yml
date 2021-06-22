@@ -34,7 +34,7 @@
         msg: |
              The variable vm_qcow_image is either not defined or not copied to
              the directory {{ kvm_vm_pool_dir }}/. Please verify and try again.
-      when: cloud_init_image_exist.stat.exists == False or vm_qcow_image|length == 0
+      when: not cloud_init_image_exist.stat.exists or vm_qcow_image|length == 0
       tags: [deploy_vm]
      
     - name: MAIN Convert disk size to bytes
@@ -49,7 +49,7 @@
       tags: kvm_vm_setup
       set_fact:
         static_net: yes
-      when: convert_dhcp_to_static|bool or vm_ipaddress != ""
+      when: convert_dhcp_to_static|bool or vm_ipaddress|length > 0
 
     - name: INCLUDE TASKS from build_vm_config.yml to build the VM deployment config
       import_tasks: build_vm_config.yml

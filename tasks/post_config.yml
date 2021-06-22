@@ -3,6 +3,18 @@
 #      and use it here to get the VMs ip address. Then check if the VM
 #      is responsive then proceed to up the VM.
 
+- name: POST_CONFIG remove host from known host
+  tags: [ deploy_vm, vm_post_config ]
+  command: ssh-keygen -R {{ item }}
+  changed_when: False
+  delegate_to: localhost
+  ignore_errors: yes
+  loop:
+    - "{{ vm_name }}.{{ vm_domain }}"
+    - "{{ vm_name }}"
+    - "{{ vm_ipaddress }}"
+    - "{{ vm_ip }}"
+
 - name: POST_CONFIG check for {{ vm_name }} in inventory {{ inventory_file }}
   tags: [ deploy_vm, vm_post_config ]
   command: grep -o {{ vm_name }} {{ inventory_file }}
@@ -51,21 +63,21 @@
     cdrom_device: "{{ cdrom_device.stdout.split()[0] }}"
   when: >
     cdrom_device.stdout.split()[0] is defined and
-    cdrom_device.stdout.split()[0] != ""
+    cdrom_device.stdout.split()[0]|length > 0
 
 - name: POST_CONFIG Eject CDROM {{ cdrom_device }}
   tags: [ deploy_vm, vm_post_config ]
   shell: >
     virsh change-media {{ vm_name }} {{ cdrom_device }} --eject
   ignore_errors: yes
-  when: cdrom_device != ""
+  when: cdrom_device|length == 0
 
 - name: POST_CONFIG display vm information
   tags: [ deploy_vm, vm_post_config ]
   debug:
-    msg:
-      - "***********************************"
-      - "    VM Name:    {{ vm_name }}      "
-      - "    IP Address: {{ vm_ip }}        "
-      - "    Username:   {{ admin_user }}   "
-      - "***********************************"
+    msg: |
+      "***********************************"
+      "    VM Name:    {{ vm_name }}      "
+      "    IP Address: {{ vm_ip }}        "
+      "    Username:   {{ admin_user }}   "
+      "***********************************"

@@ -9,7 +9,7 @@
 - name: DEPLOY_VM get {{ os_qcow_template }} size
   tags: [ deploy_vm, config_qcow ]
   shell: >
-    qemu-img info "{{ os_qcow_template }}" | awk -F'[^0-9]*' '/virtual size/ {print $3}'
+    set -o pipefail && qemu-img info "{{ os_qcow_template }}" | awk -F'[^0-9]*' '/virtual size/ {print $3}'
   register: qcow_source_size
   changed_when: false
 
@@ -181,18 +181,3 @@
   delay: 10
   register: dhcp_vm_ip
   changed_when: False
-
-## adding host to in memory inventory
-## two entries will be added, one is for user provided ip
-## the other is for the ip issued by DHCP
-- name: add {{ vm_name }} user provided ip address to in-memory inventory
-  tags: [ deploy_vm ]
-  add_host:
-    name: "{{ dhcp_vm_ip.stdout }}"
-  when: vm_ipaddress != ''
-
-- name: add {{ vm_name }} dhcp issues ip address to in-memory inventory
-  tags: [ deploy_vm ]
-  add_host:
-    name: "{{ dhcp_vm_ip.stdout }}"
-  when: dhcp_vm_ip.stdout != ''

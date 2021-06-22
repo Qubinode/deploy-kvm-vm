@@ -1,6 +1,11 @@
 ---
+#- name: BUILD NETWORK set VM ip address to user specified
+#  tags: [ deploy_vm, config_vm, config_vm_ip ]
+#  set_fact:
+#    user_provided_vm_ip: "{{ vm_ipaddress }}"
+#  when: vm_ipaddress|length > 0
+
 - name: GET_IP_INFO Try to discover VM ip address
-  when: vm_ip is not defined or vm_ip | length == 0
   tags: [ deploy_vm, config_vm, config_vm_ip ]
   block:
     - name: try to discover {{ vm_name }} ip address
@@ -85,3 +90,12 @@
     state: present
   register: vm_inventory_status
   when: update_inventory|bool and vm_ip is defined
+
+## adding host to in memory inventory
+## two entries will be added, one is for user provided ip
+## the other is for the ip issued by DHCP
+- name: add {{ vm_name }} user provided ip address to in-memory inventory
+  tags: [ deploy_vm, config_vm, update_inventory ]
+  add_host:
+    name: "{{ vm_name }}"
+    ansible_host: "{{ vm_ip }}"

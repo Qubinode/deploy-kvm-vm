@@ -2,6 +2,7 @@
 - name: SHUTDOWN-VM shutting down {{ vm_name }} to run virt-customize
   tags: [ shutdown_vm ]
   shell: |
+    set -o pipefail
     result=$(virsh dominfo --domain {{ vm_name }}| awk '/State/ {print $2}')
     if [ $result == 'shut' ];
     then
@@ -10,6 +11,7 @@
       virsh destroy {{ vm_name }}
     fi
   register: vm_shutdown_status
+  changed_when: False
   until: vm_shutdown_status.stdout.find('shutoff') != -1
   retries: 30
   delay: 5

@@ -14,6 +14,7 @@
         path: /export/libguestfs
         state: directory
         owner: "{{ admin_user }}"
+        mode: '0755'
 
     - name: BUILD_VM_CONFIG ensure libguestfs appliance is present
       unarchive:
@@ -63,7 +64,7 @@
 - name: BUILD_VM_CONFIG generate random mac address
   set_fact:
     vm_mac: "{{ '52:54:00' | random_mac }}"
-  when: vm_name not in all_instances.list_vms and vm_mac == ""
+  when: vm_name not in all_instances.list_vms and vm_mac|length == 0
   tags: [build_vm, deploy_vm]
 
 - name: BUILD_VM_CONFIG Check if qcow OS image template exist
@@ -78,7 +79,7 @@
   tags: [build_vm, deploy_vm]
   set_fact:
     convert_dhcp_to_static: yes
-  when: not vm_cidr|bool and vm_ip != '' and vm_gateway != ''
+  when: not vm_cidr|bool and vm_ip|length > 0 and vm_gateway|length > 0
 
 - name: BUILD_VM_CONFIG Generate cloud-init static network config
   template:
@@ -92,6 +93,7 @@
 
 - name: BUILD_VM_CONFIG get {{ vm_public_key }}
   command: "cat {{ vm_public_key }}"
+  changed_when: False
   register: sshkey
   tags: [build_vm, deploy_vm]
 
@@ -128,8 +130,8 @@
   tags: [build_vm, deploy_vm]
 
 - name: BUILD_VM_CONFIG Create iso image for cloud init
-  shell: "genisoimage -input-charset utf-8 -output {{ cloud_init_iso_image }} -volid cidata -joliet -r {{ cloud_init_configs }}"
-  when: user_data_cloud_init.changed or cloud_init_iso.stat.exists == False
+  command: "genisoimage -input-charset utf-8 -output {{ cloud_init_iso_image }} -volid cidata -joliet -r {{ cloud_init_configs }}"
+  when: user_data_cloud_init.changed or not cloud_init_iso.stat.exists
   tags: [build_vm, deploy_vm]
 
 - name: BUILD_VM_CONFIG generate virt-install command arguments

@@ -17,9 +17,9 @@
     - name: BUILD NETWORK check if VM current ip matches the user provided ip
       set_fact:
         vm_ip_differ: true
-      when: vm_ipaddress | length != 0 and (dhcp_vm_ip.stdout != vm_ipaddress)
+      when: vm_ipaddress | length != 0 and (vm_ip != vm_ipaddress)
     
-    - name: BUILD NETWORK set VM ip address to user specefied
+    - name: BUILD NETWORK set VM ip address to user specified
       set_fact:
         vm_ip: "{{ vm_ipaddress }}"
       when: vm_ip_differ|bool
@@ -27,7 +27,7 @@
 - name: BUILD NETWORK discover {{ vm_name }} netmask prefix when using DHCP
   tags: [ deploy_vm, config_vm, config_vm_ip ]
   shell: |
-    /usr/local/bin/getvmip -a| awk -F'/' '/{{ vm_ip }}/ {print $2}'
+    set -o pipefail && /usr/local/bin/getvmip -a| awk -F'/' '/{{ vm_ip }}/ {print $2}'
   register: netmask_prefix
   changed_when: False
   when: not vm_cidr|bool
@@ -41,28 +41,28 @@
 - name: BUILD NETWORK discover {{ vm_name }} gateway when using DHCP
   tags: [ deploy_vm, config_vm, config_vm_ip ]
   shell: |
-       ip route get 8.8.8.8|awk '/via/ {print $3}'
+       set -o pipefail && ip route get 8.8.8.8|awk '/via/ {print $3}'
   delegate_to: "{{ dhcp_vm_ip.stdout }}"
   changed_when: false
   register: gateway
-  when: vm_gateway == ''
+  when: vm_gateway|length == 0
 
 - name: BUILD NETWORK setting vm_gateway variable to {{ vm_name }} dhcp provided gateway
   tags: [ deploy_vm, config_vm, config_vm_ip ]
   set_fact:
     vm_gateway: "{{ gateway.stdout }}"
-  when: vm_gateway == ''
+  when: vm_gateway|length == 0
 
 - name: BUILD NETWORK Get MAC address
   tags: [ deploy_vm, config_vm, config_vm_ip ]
   shell: >
-     virsh --connect qemu:///system dumpxml {{ vm_name }} | awk -F\' '/mac address/ {print $2}'
+     set -o pipefail &&  virsh --connect qemu:///system dumpxml {{ vm_name }} | awk -F\' '/mac address/ {print $2}'
   register: vm_mac_result
   changed_when: false
-  when: vm_name in all_instances.list_vms and vm_mac == ''
+  when: vm_name in all_instances.list_vms and vm_mac|length == 0
 
 - name: BUILD NETWORK setting {{ vm_name }} vm_mac variable to {{ vm_mac_result.stdout }} 
   tags: [ deploy_vm, config_vm, config_vm_ip ]
   set_fact:
     vm_mac: "{{ vm_mac_result.stdout }}"
-  when: vm_name in all_instances.list_vms and vm_mac == ''
+  when: vm_name in all_instances.list_vms and vm_mac|length == 0
