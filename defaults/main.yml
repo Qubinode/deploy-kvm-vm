@@ -50,14 +50,11 @@ rhel_release: "8"
 ## Resources to assign to VM
 vm_cpu: 2
 
-## memmory is megabytes
+## memory is megabytes
 vm_memory: 1024
 
 ## disk size in gigabytes
 vm_root_disk_size: 10G
-
-## set this to yes if vm_root_disk_size is larger than 10G
-expand_os_disk: no
 
 ## Your local domain
 vm_domain: ""

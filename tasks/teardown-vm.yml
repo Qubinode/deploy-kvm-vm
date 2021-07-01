@@ -75,4 +75,12 @@
   with_items: "{{ vm_disks_all.files }}"
   when: vm_disks_all.matched != 0
 
-#- meta: end_play
+- name: TEAR-DOWN-VM Remove {{ vm_name }} to ansible inventory inventory
+  delegate_to: localhost
+  lineinfile:
+    path: "{{ inventory_file }}"
+    regexp: "^{{ vm_name }}"
+    line: "{{ vm_name }}   ansible_host={{ vm_ip }} ansible_user={{ admin_user }}"
+    insertafter: '^\[{{ inventory_group }}\]'
+    state: absent
+  register: vm_inventory_status

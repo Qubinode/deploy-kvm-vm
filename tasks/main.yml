@@ -13,7 +13,14 @@
 
 - name: MAIN Deploy the VM
   when: not vm_teardown|bool
+  tags: [ deploy_vm, config_qcow ]
   block:
+    - name: Get OS disk size digits
+      vars:
+        match_regex: '^[0-9]*'
+      set_fact:
+        os_vm_disk_size: "{{ vm_root_disk_size | regex_search(match_regex) }}"
+
     - name: MAIN Ensure required packages are installed
       tags: kvm_vm_packages
       become: yes

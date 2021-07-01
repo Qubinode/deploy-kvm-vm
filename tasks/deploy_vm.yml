@@ -1,11 +1,4 @@
 ---
-- name: Get OS disk size digits
-  tags: [ deploy_vm, config_qcow ]
-  vars:
-    match_regex: '^[0-9]*'
-  set_fact:
-    os_vm_disk_size: "{{ vm_root_disk_size | regex_search(match_regex) }}"
-
 - name: DEPLOY_VM get {{ os_qcow_template }} size
   tags: [ deploy_vm, config_qcow ]
   shell: >
