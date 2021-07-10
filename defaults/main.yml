@@ -66,6 +66,13 @@ extra_storage:
   - size: 50G
     enable: false
 
+## Extra network interfaces
+extra_nics:
+  - libvirt_network: qubinet
+    enable: no
+  - libvirt_network: qubinat
+    enable: no
+
 ## the kvm nic is usually always eth
 vm_nic: "eth0"
 
@@ -117,6 +124,9 @@ inventory_group: ""
 
 # Qemu preallocation, options are: metadata, falloc, full
 qemu_img_allocation: falloc
+
+# Primary network interface for libvirt vms
+vm_primary_network_interface: eth0
 
 #########################
 ## NO CHANGE REQUIRED

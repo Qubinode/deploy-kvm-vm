@@ -7,7 +7,7 @@ DISK=$3
 
 RESULT=$(virsh dumpxml "${VM_NAME}" | grep -o "${VM_DISK}")
 if [ "A${RESULT}" == "A" ] && [ -f "${VM_DISK}" ]; then
-    virsh attach-disk "${VM_NAME}" "${VM_DISK}" "${DISK}" --live --persistent
+    virsh attach-disk "${VM_NAME}" --source "${VM_DISK}" --target "${DISK}" --config
 echo "No change"
 fi
 

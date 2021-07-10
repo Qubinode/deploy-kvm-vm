@@ -5,7 +5,7 @@
 
 - name: POST_CONFIG remove host from known host
   tags: [ deploy_vm, vm_post_config ]
-  command: ssh-keygen -R {{ item }}
+  shell: ssh-keygen -R {{ item }} > /dev/null 2>&1
   changed_when: False
   delegate_to: localhost
   ignore_errors: yes
@@ -47,9 +47,13 @@
       yum:
         name: cloud-init
         state: absent
+  rescue:
+    - name: Fail to run post config
+      debug:
+        msg: 'Was not able to set root password, remove clound-init and update resolv.conf'
 
 - name: POST_CONFIG Check if cd-rom is attached
-  tags: [ deploy_vm, vm_post_config ]
+  tags: [ deploy_vm, remove_cdrom ]
   shell: >
     virsh domblklist "{{ vm_name }}" | awk '/{{ cidata_iso_name }}/ {print $1}'
   register: cdrom_device
@@ -58,7 +62,7 @@
   become: yes
 
 - name: POST_CONFIG Declare CDROM
-  tags: [ deploy_vm, vm_post_config ]
+  tags: [ deploy_vm, remove_cdrom ]
   set_fact:
     cdrom_device: "{{ cdrom_device.stdout.split()[0] }}"
   when: >
@@ -66,11 +70,11 @@
     cdrom_device.stdout.split()[0]|length > 0
 
 - name: POST_CONFIG Eject CDROM {{ cdrom_device }}
-  tags: [ deploy_vm, vm_post_config ]
+  tags: [ deploy_vm, remove_cdrom ]
   shell: >
-    virsh change-media {{ vm_name }} {{ cdrom_device }} --eject
+    virsh change-media {{ vm_name }} {{ cdrom_device }} --update --config --force
   ignore_errors: yes
-  when: cdrom_device|length == 0
+  when: cdrom_device|length > 0
 
 - name: POST_CONFIG display vm information
   tags: [ deploy_vm, vm_post_config ]

@@ -9,7 +9,7 @@
   tags: [ deploy_vm, config_vm, config_vm_ip ]
   block:
     - name: try to discover {{ vm_name }} ip address
-      command: "/usr/local/bin/getvmip -r {{ vm_name }}"
+      command: "/usr/local/bin/getvmip -r {{ vm_name }} -e {{ vm_primary_network_interface }}"
       until: dhcp_vm_ip.stdout != ""
       retries: 30
       delay: 1
@@ -99,3 +99,4 @@
   add_host:
     name: "{{ vm_name }}"
     ansible_host: "{{ vm_ip }}"
+    ansible_user: "{{ admin_user }}"

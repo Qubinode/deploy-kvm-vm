@@ -32,6 +32,7 @@
     dest: /usr/local/bin/qubi-virt-customize
     mode: '0755'
     owner: "{{ admin_user }}"
+  become: yes
   tags: [build_vm, deploy_vm]
 
 - name: BUILD_VM_CONFIG copy scripts to KVM host
@@ -40,6 +41,7 @@
     dest: "/usr/local/bin/{{ item }}"
     mode: '0755'
     owner: "{{ admin_user }}"
+  become: yes
   with_items:
     - getvmip
     - attach-libvirt-disk
